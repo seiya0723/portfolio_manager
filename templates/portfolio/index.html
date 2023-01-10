@@ -1,0 +1,302 @@
+{% extends "common/l_sidebar.html" %}
+
+{% load static%}
+
+
+{% block page_title %}店舗売上データ{% endblock %}
+
+<!--追加でCSSを読み込ませる。今回はBootstrap-->
+{% block extra_head %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+{# TODO:ここにChart.jsのCDNとグラフを描画するJavaScriptを用意する #}
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.2/dist/chart.min.js"></script>
+<script src="{% static 'portfolio/js/index.js' %}"></script>
+
+
+<style>
+.tab_radio {
+    display:none;
+}
+.tab_area {
+    display:none;
+
+    border:solid 0.2rem black;
+    padding:0.5rem;
+}
+.tab_label {
+    border:solid 0.2rem black;
+    padding:0 0.2rem;
+    background:silver;
+    cursor:pointer;
+}
+
+input[type="radio"].tab_radio:checked + .tab_label { background:white; }
+
+{% for store_data in store_data_list %}
+input[type="radio"]#tab_radio_{{ store_data.year }}:checked ~ #tab_area_{{ store_data.year }} { display:block; }
+{% endfor %}
+</style>
+
+{% endblock %}
+
+
+{% block header_link %}{% url 'portfolio:index' %}{% endblock %}
+{% block header_title %}店舗売上データ{% endblock %}
+
+<!--↓これはヘッダーの右側に何かを表示させたい時に使う。例えばログインのボタンとか-->
+{% block header_right_content %}{% endblock %}
+
+<!--↓これは左サイドバーの中身に何かを表示させたい時に使う。例えばサイト内のリンクとか-->
+{% block sidebar_content %}
+
+
+<form action="">
+    <input type="text" name="store">
+    <input type="submit" value="検索">
+</form>
+
+
+{% for store in stores %}
+<div>
+    <a href="?store={{ store.id }}">{{ store.name }}</a>
+</div>
+{% endfor %}
+
+
+{% endblock %}
+{% block main %}
+
+
+{# TODO: これで年ごとの表示が実現できる。 #}
+{% for store_data in store_data_list %}
+<div>{{ store_data.year }}</div>
+<div>{{ store_data.store_datas }}</div>
+{% endfor %}
+
+<hr>
+
+
+{# TODO:年の数だけタブを作る必要がある #}
+{% for store_data in store_data_list %}
+<input id="tab_radio_{{ store_data.year }}" class="tab_radio" type="radio" name="tab_system"><label class="tab_label" for="tab_radio_{{ store_data.year }}">{{ store_data.year }}年</label>
+{% endfor %}
+
+
+{% for store_data in store_data_list %}
+<div id="tab_area_{{ store_data.year }}" class="tab_area">
+
+    {% comment %}
+    {# TODO: ここに〇〇年のデータを表示させる #}
+    <div>{{ store_data.year }}</div>
+
+    {# TODO:年ごとのデータが出力される #}
+    {% for data in store_data.store_datas %}
+    <div>
+        <div>1: {{ data.store }}</div>
+        <div>2: {{ data.date }}</div>
+        <div>3: {{ data.sale }}</div>
+        <div>3: {{ data.saleamount }}</div>
+        <div>3: {{ data.accesse }}</div>
+        <div>3: {{ data.conversionrate }}</div>
+    </div>
+    {% endfor %}
+    {% endcomment %}
+
+<table class="table table-dark text-center">
+    <thead>
+        <tr>
+            <th>大項目</th>
+            <th>小項目</th>
+            {% for data in store_data.store_datas %}
+            <th>{{ data.date.month }}月</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>売上</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>PC</td>
+            {% for data in store_data.store_datas %}
+            {% if data.sale.pc %}<td>{{ data.sale.pc }}</td>{% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <td></td>
+            <td>スマホ</td>
+            {% for data in store_data.store_datas %}
+            {% if data.sale.phone %}<td>{{ data.sale.phone }}</td>{% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <td></td>
+            <td>アプリ</td>
+            {% for data in store_data.store_datas %}
+            {% if data.sale.app %}<td>{{ data.sale.app }}</td>{% endif %}
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+
+
+</div>
+{% endfor %}
+
+    <form action="" method="post">
+        {% csrf_token %}
+
+        <select name="store">
+            {% for store in stores %}
+            <option value="{{ store.id }}">{{ store.name }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="date" name="date">
+
+        <div>売上</div>
+
+        <input type="number" name="pc" placeholder="pc">
+        <input type="number" name="phone" placeholder="phone">
+        <input type="number" name="app" placeholder="app">
+
+        <div>売上件数</div>
+
+        <input type="number" name="pc" placeholder="pc">
+        <input type="number" name="phone" placeholder="phone">
+        <input type="number" name="app" placeholder="app">
+
+        <div>アクセス人数</div>
+
+        <input type="number" name="pc" placeholder="pc">
+        <input type="number" name="phone" placeholder="phone">
+        <input type="number" name="app" placeholder="app">
+
+        <div>転換率</div>
+
+        <input type="number" name="pc" placeholder="pc">
+        <input type="number" name="phone" placeholder="phone">
+        <input type="number" name="app" placeholder="app">
+
+        <input type="submit" value="送信">
+    </form>
+
+
+
+<section style="width:60%;margin:auto;">
+
+    <div style="display:flex;">
+        <div style="position:relative;width:50%;border:solid 1px black;">
+            <canvas id="graph1"></canvas>
+        </div>
+        <div style="position:relative;width:50%;border:solid 1px black;">
+            <canvas id="graph2"></canvas>
+        </div>
+    </div>
+    <div style="display:flex;">
+        <div style="position:relative;width:50%;border:solid 1px black;">
+            <canvas id="graph3"></canvas>
+        </div>
+        <div style="position:relative;width:50%;border:solid 1px black;">
+            <canvas id="graph4"></canvas>
+        </div>
+    </div>
+
+</section>
+
+<h2>グラフ1</h2>
+<form id="graph1_form">
+
+    <label><input type="checkbox" class="cost1">:原材料費</label>
+    <label><input type="checkbox" class="cost2">:人件費</label>
+    <label><input type="checkbox" class="cost3">:広告費</label>
+    <label><input type="checkbox" class="cost4">:光熱費等</label>
+    <label><input type="checkbox" class="earn1">:原材料費</label>
+
+    <select class="type">
+        <option value="bar">棒グラフ</option>
+        <option value="line">折れ線グラフ</option>
+    </select>
+
+    <button class="graph_regene" type="button" value="graph1">グラフ1をリロード</button>
+
+    <label><input class="graph_chk" type="checkbox" value="graph1">グラフ1を消す</label>
+
+    <button class="graph_button" type="button" value="graph1">グラフ1を消す</button>
+
+</form>
+<h2>グラフ2</h2>
+<form>
+
+    <label><input type="checkbox" class="cost1">:原材料費</label>
+    <label><input type="checkbox" class="cost2">:人件費</label>
+    <label><input type="checkbox" class="cost3">:広告費</label>
+    <label><input type="checkbox" class="cost4">:光熱費等</label>
+    <label><input type="checkbox" class="earn1">:原材料費</label>
+    <select class="type">
+        <option value="bar">棒グラフ</option>
+        <option value="line">折れ線グラフ</option>
+    </select>
+
+    <button class="graph_regene" type="button" value="graph2">グラフ2をリロード</button>
+
+    <label><input class="graph_chk" type="checkbox" value="graph2">グラフ2を消す</label>
+
+
+    <button class="graph_button" type="button" value="graph2">グラフ2を消す</button>
+
+</form>
+<h2>グラフ3</h2>
+<form>
+
+    <label><input type="checkbox" class="cost1">:原材料費</label>
+    <label><input type="checkbox" class="cost2">:人件費</label>
+    <label><input type="checkbox" class="cost3">:広告費</label>
+    <label><input type="checkbox" class="cost4">:光熱費等</label>
+    <label><input type="checkbox" class="earn1">:原材料費</label>
+    <select class="type">
+        <option value="bar">棒グラフ</option>
+        <option value="line">折れ線グラフ</option>
+    </select>
+
+    <button class="graph_regene" type="button" value="graph3">グラフ3をリロード</button>
+
+    <label><input class="graph_chk" type="checkbox" value="graph3">グラフ3を消す</label>
+
+    <button class="graph_button" type="button" value="graph3">グラフ3を消す</button>
+
+</form>
+<h2>グラフ4</h2>
+<form>
+
+    <label><input type="checkbox" class="cost1">:原材料費</label>
+    <label><input type="checkbox" class="cost2">:人件費</label>
+    <label><input type="checkbox" class="cost3">:広告費</label>
+    <label><input type="checkbox" class="cost4">:光熱費等</label>
+    <label><input type="checkbox" class="earn1">:原材料費</label>
+    <select class="type">
+        <option value="bar">棒グラフ</option>
+        <option value="line">折れ線グラフ</option>
+    </select>
+
+    <button class="graph_regene" type="button" value="graph4">グラフ4をリロード</button>
+
+    <label><input class="graph_chk" type="checkbox" value="graph4">グラフ4を消す</label>
+
+    <button class="graph_button" type="button" value="graph4">グラフ4を消す</button>
+
+</form>
+
+
+
+
+
+
+{% endblock %}
+

@@ -1,0 +1,53 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{% block page_title %}{% endblock %}</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="{% static 'common/css/l_sidebar.css' %}">
+
+    {% block extra_head %}
+    {% endblock %}
+</head>
+<body>
+    <header>
+
+        {# このチェック状況を元にサイドバーを開閉する。 #}
+        <input id="l_sidebar" class="l_sidebar_button" type="checkbox">
+        <div class="left_header">
+
+            {# ↑のチェックボックスに紐付いているラベル #}
+            <label class="l_sidebar_label" for="l_sidebar">
+                {# 閉じている時はメニューのアイコン、 開いている時はバツのアイコン #}
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-times"></i>
+            </label>
+
+            <a class="header_link" href="{% block header_link %}{% endblock %}"><h1>{% block header_title %}{% endblock %}</h1></a>
+            <div class="header_right_content">
+            {% block header_right_content %}
+            {% endblock %}
+            </div>
+
+        </div>
+        {# ここがサイドバーの本体 チェックされた時はleft:0px; チェックされていない時はleft:-300px; #}
+        <div class="l_sidebar_menu">
+            {% block sidebar_content %}{% endblock %}
+        </div>
+
+        {# サイドバーの範囲外をクリックした時に閉じるようにラベルタグを使う。チェックがついている時だけ表示させる #}
+        <label class="l_sidebar_closer" for="l_sidebar"></label>
+    </header>
+
+    <main>
+    {% block main %}
+    {% endblock %}
+    </main>
+
+</body>
+</html>
